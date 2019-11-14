@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="style/style.css">
+
+    <style type="text/css" media="print">
+        .noprint {
+            display: none
+        }
+        
+        .print {
+            display: block !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="el-header noprint">
+            <div class="icon-btns">
+                <i class="icon-list" @click="changeLeftMenu"></i>
+                <i class="icon-skip_previous" v-bind:class="{'disabled': currentPage == 1}" @click="changeCurrentPage('first')"></i>
+                <i class="icon-play_arrow prev-icon" v-bind:class="{'disabled': currentPage == 1}" @click="changeCurrentPage('prev')"></i>
+                <i class="icon-play_arrow" v-bind:class="{'disabled': currentPage == pageNum}" @click="changeCurrentPage('next')"></i>
+                <i class="icon-skip_next" v-bind:class="{'disabled': currentPage == pageNum}" @click="changeCurrentPage('last')"></i>
+                <select v-model="currentPage">
+                    <option v-for="page in pageNum" v-bind:value="page">page {{ page }}</option>
+                </select>
+                <i class="icon-zoom_in" v-bind:class="{'disabled': zoomNum == 2}" @click="modifyZoom('in')"></i>
+                <select v-model="zoomNum">
+                    <option value="0.5">50%</option>
+                    <option value="0.6">60%</option>
+                    <option value="0.7">70%</option>
+                    <option value="0.8">80%</option>
+                    <option value="0.9">90%</option>
+                    <option value="1.0" selected>100%</option>
+                    <option value="1.1">110%</option>
+                    <option value="1.2">120%</option>
+                    <option value="1.3">130%</option>
+                    <option value="1.4">140%</option>
+                    <option value="1.5">150%</option>
+                    <option value="1.6">160%</option>
+                    <option value="1.7">170%</option>
+                    <option value="1.8">180%</option>
+                    <option value="1.9">190%</option>
+                    <option value="2.0">200%</option>
+                </select>
+                <i class="icon-zoom_out" v-bind:class="{'disabled': zoomNum == 0.5}" @click="modifyZoom('out')"></i>
+                <i class="icon-format_align_left" @click="textAlign = 'left'"></i>
+                <i class="icon-format_align_center" @click="textAlign = 'center'"></i>
+                <i class="icon-format_align_right" @click="textAlign = 'right'"></i>
+                <i class="icon-print" @click="window.print()"></i>
+            </div>
+        </header>
+
+        <aside class="noprint" width="240px" v-show="ifMenuShow">
+            <nav class="tabNav">
+                <ul>
+                    <li v-bind:class="{ 'curr': currentNav == 0 }" @click="currentNav = 0">Page</li>
+                    <li v-bind:class="{ 'curr': currentNav == 1 }" @click="currentNav = 1">Bookmark</li>
+                </ul>
+
+                <div class="clear"></div>
+            </nav>
+
+            <div class="tab-conent scrollbar" v-bind:style="{ height: asideHeight + 'px' }">
+
+            <section v-show="currentNav == 0">
+                <ul class="page-menu">
+                    <li v-for="page in pageNum" v-bind:class="{ 'curr': currentPage == page }" @click="changePage(page)"><i class="icon-file-text2"></i> page {{ page }}</li>
+                </ul>
+            </section>
+
+            <section v-show="currentNav == 1">
+                <ul class="page-menu">
+                    <li v-for="page in pageNum" v-bind:class="{ 'curr': currentPage == page }" @click="changePage(page)"><i class="icon-turned_in_not"></i> Bookmark {{ page }}</li>
+                </ul>
+            </section>
+        </div>
+
+        </aside>
+        <div class="main scrollbar noprint"  v-bind:style="{ height: mainHeight + 'px' }" v-bind:class="{ 'mainLeftM': ifMenuShow, 'aleft': textAlign === 'left','acenter': textAlign === 'center','aright': textAlign === 'right'}">
+            <div class="conent" v-html="pageContent" v-bind:style="zoomStyle"></div>
+
+            <div class="clear"></div>
+        </div>
+
+        <!--专门只为打印的内容-->
+        <div class="conent print" style="display:none" v-html="pageContent"></div>
+    </div>
+</body>
+<!-- 先引入 Vue -->
+<script src="js/vue.min.js"></script>
+<script>
+
+var app = new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                // visible: false,
+                isCollapse: false,
+                currentNav: 0,
+                activeName2: 'first',
+                pageNum: 1, 
+                currentPage: 1,
+                pageContent: '',
+                asideHeight: 300,
+                mainHeight: 300,
+                ifMenuShow: true,
+                zoomNum: '1.0',
+                textAlign: 'left',
+                zoomStyle: {},
+                pageDatas: ['<p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:49.211102px;left:344.561859px"><nobr>Therese “Tara ” DeGuzman </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;text-decoration:underline;color:#0463C1;"><span style="position:absolute;top:75.771156px;left:328.036407px"><nobr>ThereseT.DeGuzman@gmail.com </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:102.011147px;left:372.067780px"><nobr>(818) 268-0855 </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:128.571121px;left:49.267532px"><nobr>OBJECTIVE </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:200.891113px;left:49.267532px"><nobr>To build a long-term career in a challenging business sector and to utilize my professional skills and experience in a dynamic and stable workplace. </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;text-decoration:underline;color:#000000;"><span style="position:absolute;top:272.571136px;left:48.267532px"><nobr>PROFESSIONAL EXPERIENCE </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:299.131104px;left:49.267532px"><nobr>onefinestay Culver City, CA </nobr></span><span style="position:absolute;top:315.131104px;left:49.267532px"><nobr>Service Executive April 2019 – Present </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:343.222656px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:342.651123px;left:96.267540px"><nobr>Assist with all incoming bookings to ensure optimal efficiency </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:359.222656px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:358.651123px;left:96.267540px"><nobr>Assist with any incoming requests from current or future guests to ensure premiere service </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:375.222656px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:374.651123px;left:96.267540px"><nobr>Maintain prompt accurate communication with guests and other onefinestay team staff </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:391.222656px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:390.651123px;left:96.267540px"><nobr>Ensure all logistics per booking is handled efficiently and monetarily responsibly </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:407.222656px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:406.651123px;left:96.267540px"><nobr>Maintain an accurate database of an issues at a home and flag with staff and other appropriate parties </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:448.571136px;left:49.267532px"><nobr>AGENCY FOR THE PERFORMING ARTS Beverly Hills, CA </nobr></span><span style="position:absolute;top:464.571136px;left:48.267532px"><nobr>Booking Agent, Comedy Department March 2018 – August 2018 </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:492.662659px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:492.091156px;left:96.267540px"><nobr>Send newly available dates of rostered talent to buyers, weekly </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:508.662659px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:508.091156px;left:96.267540px"><nobr>Communicate with buyers regarding booking talent to headline shows </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:524.662659px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:524.091125px;left:96.267540px"><nobr>Book talent at various venues across designated territory </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:540.662659px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:540.091125px;left:96.267540px"><nobr>Facilitate contracts with talent and buyers for shows booked </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:556.662659px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:556.091125px;left:96.267540px"><nobr>Assist buyers filling fall out dates </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:572.342651px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:571.771179px;left:96.267540px"><nobr>Communicate with talent regarding their interests and goals </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:588.342651px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:587.771179px;left:96.267540px"><nobr>Execute plans to assist talent in achieving interests and goals </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:604.342651px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:603.771118px;left:96.267540px"><nobr>Coordinate with talent ’s management regarding talent </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:620.342651px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:619.771118px;left:96.267540px"><nobr>Work closely with other departments (i.e. Talent &amp; Literary) to enhance work opportunities and exposure for talent via auditions and </nobr></span><span style="position:absolute;top:635.451111px;left:96.267540px"><nobr>writing jobs </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:652.022705px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:651.451111px;left:96.267540px"><nobr>Actively seeking out new and upcoming talent </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:668.022705px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:667.451111px;left:96.267540px"><nobr>Attend various shows and events </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:709.371094px;left:49.267532px"><nobr>AGENCY FOR THE PERFORMING ARTS Beverly Hills, CA </nobr></span><span style="position:absolute;top:725.371216px;left:48.267532px"><nobr>Executive Assistant to President &amp; CEO March 2017 – March 2018 </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:753.462708px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:752.891174px;left:96.267540px"><nobr>Maintained calendar for CEO </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:769.462708px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:768.891174px;left:96.267540px"><nobr>Managed high volume of highly confidential documents </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:785.462708px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:784.891174px;left:96.267540px"><nobr>Maintained high level of discretion regarding company </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:801.462708px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:800.891174px;left:96.267540px"><nobr>Scheduled meetings; internally and externally </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:817.462708px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:816.891174px;left:96.267540px"><nobr>Managed various projects and their status </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:834.742676px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:832.626770px;left:96.267540px"><nobr>Coordinated travel arrangements for CEO, family and other employees traveling with CEO (domestic and international) <span style="font-family:Segoe UI Symbol;">• </span></nobr></span><span style="position:absolute;top:850.171143px;left:97.267540px"><nobr>Processed travel and expense reports </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:866.742676px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:866.171143px;left:96.267540px"><nobr>Assisted in facilitating contracts for clients; pending to confirmed, confirmed to issued, issued to buyer signed, buyer signed to fully </nobr></span><span style="position:absolute;top:881.851135px;left:96.267540px"><nobr>executed. </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:898.422668px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:897.851135px;left:96.267540px"><nobr>Acted as liaison between CEO, clients and potential clients </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:914.422729px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:913.851135px;left:96.267540px"><nobr>Acted as liaison between CEO, partners and company employees </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:930.102661px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:929.531128px;left:96.267540px"><nobr>Implemented effective systems to ensure productivity of CEO and company employees </nobr></span></span></p><p><span style="font-family:Arial;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:946.102661px;left:72.267540px"><nobr>• </nobr></span></span></p><p><span style="font-family:Helvetica;font-size:9.120001px;font-style:normal;font-weight:normal;color:#000000;"><span style="position:absolute;top:945.531128px;left:96.267540px"><nobr>Ensured CEO is well informed of progress within company on-going projects </nobr></span></span></p>']
+            }
+        },
+        mounted: function() {
+            this.$nextTick(function() {
+                this.pageNum = this.pageDatas.length;
+                this.pageContent = this.pageDatas[0];
+
+                this.setLeftMenuHeight();
+            })
+        },
+        watch: {
+            'currentPage': function(newVal, oldValue) {
+                // console.log('newVal ' + newVal, 'oldValue ' + oldValue);
+                if (newVal) {
+                    this.pageContent = this.pageDatas[this.currentPage - 1];
+                }
+            },
+            'zoomNum': function(newVal, oldValue) {
+                if (newVal) {
+                    this.zoomStyle = {
+                        'transform': 'scale(' + newVal + ')',
+                        '-webkit-transform': 'scale(' + newVal + ')',
+                        '-ms-transform': 'scale(' + newVal + ')',
+                        '-moz-transform': 'scale(' + newVal + ')',
+                        '-o-transform': 'scale(' + newVal + ')'
+                    }
+                }
+            }
+        },
+        methods: {
+            
+            changeCurrentPage: function(methods) {
+                switch (methods) {
+                    case 'first':
+                        this.currentPage = 1;
+                        break;
+                    case 'prev':
+                        if (this.currentPage > 1) {
+                            this.currentPage -= 1;
+                        }
+                        break;
+                    case 'next':
+                        if (this.currentPage < this.pageNum) {
+                            this.currentPage += 1;
+                        }
+                        break;
+                    case 'last':
+                        this.currentPage = this.pageNum;
+                        break;
+                }
+            },
+
+            gotoPage: function(page) {
+                console.log(page);
+                this.currentPage = page;
+            },
+            modifyZoom: function(type) {
+                switch (type) {
+                    case 'in':
+                        if (this.zoomNum < 2) {
+                            // this.zoomNum = (this.zoomNum + 0.1).toFixed(1);
+                            this.zoomNum = (parseFloat(this.zoomNum) + 0.1).toFixed(1);
+                        }
+                        break;
+                    case 'out':
+                        if (this.zoomNum > 0.5) {
+                            this.zoomNum = (parseFloat(this.zoomNum) - 0.1).toFixed(1);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                console.log(this.zoomNum);
+            },
+            setLeftMenuHeight: function() {
+                // this.asideHeight = document.body.scrollHeight - 60;
+                this.mainHeight = document.documentElement.clientHeight - 60 - 20;
+                // 60为头部导航高度， 46为menu高度， 40为上下padding
+                this.asideHeight = this.mainHeight - 20 - 46;
+            },
+            changePage: function(page) {
+                this.currentPage = page;
+                // this.pageContent = this.pageDatas[page - 1];
+            },
+            changeLeftMenu: function() {
+                this.ifMenuShow = !this.ifMenuShow;
+            }
+        }
+    });
+
+function gotoPage(page) {
+    console.log(page);
+    app.gotoPage(page);
+}
+
+</script>
+
+</html>
